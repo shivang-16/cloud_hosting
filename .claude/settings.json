@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:utho.com)",
+      "WebFetch(domain:docs.utho.com)",
+      "WebFetch(domain:api.utho.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api-docs.utho.com)",
+      "WebFetch(domain:www.utho.com)",
+      "WebFetch(domain:developer.utho.com)",
+      "Bash(curl -s \"https://utho.com/rest-api/\")",
+      "Bash(curl -s \"https://utho.com/rest-api/swagger-initializer.js\")",
+      "Bash(curl -s \"https://utho.com/rest-api/utho-api-latest-v4.yaml\")",
+      "Bash(npm install *)",
+      "Bash(mkdir -p /Users/shivang/Documents/cloud_hosting/app/api/proxy/utho/\\\\[...path\\\\])",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/login)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/login)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"admin123\"}' -w '\\\\nStatus: %{http_code}')",
+      "Bash(curl -s -H 'Authorization: Bearer live_fUerbiOtgFWBmMdZsDQcLAxjyKoGlCEzkYRhnpVITuXqJHNwvaSP' https://api.utho.com/v2/cloud/getdeploy)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/utho/deploy)",
+      "Bash(curl -s -X POST https://api.utho.com/v2/cloud/deploy -H 'Authorization: Bearer live_fUerbiOtgFWBmMdZsDQcLAxjyKoGlCEzkYRhnpVITuXqJHNwvaSP' -H 'Content-Type: application/json' -d '{\"dcslug\":\"inmumbaizone2\",\"planid\":\"10355\",\"billingcycle\":\"monthly\",\"auth\":\"option1\",\"root_password\":\"Test@1234\",\"enable_publicip\":\"true\",\"cpumodel\":\"amd\",\"firewall\":\"\",\"enablebackup\":\"false\",\"image\":\"ubuntu-22.04-x86_64\",\"cloud\":[{\"hostname\":\"test-server.mhc\"}]}' -w '\\\\n\\\\nHTTP_STATUS: %{http_code}')",
+      "Bash(curl -s -X POST https://api.utho.com/v2/cloud/deploy -H 'Authorization: Bearer live_fUerbiOtgFWBmMdZsDQcLAxjyKoGlCEzkYRhnpVITuXqJHNwvaSP' -H 'Content-Type: application/json' -d '{}' -w '\\\\n\\\\nHTTP_STATUS: %{http_code}')",
+      "Bash(python3 -c ' *)",
+      "WebFetch(domain:docs.e2enetworks.com)",
+      "WebFetch(domain:api.e2enetworks.com)",
+      "WebFetch(domain:e2enetworks.com)"
+    ],
+    "additionalDirectories": [
+      "/Users/shivang/Documents/cloud_hosting/app/api/proxy/utho"
+    ]
+  }
+}
