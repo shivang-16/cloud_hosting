@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 import { SectionCard } from "@/components/deploy/DCLocationSelector";
 import { Globe, HardDrive, Server, Shield, Key, Cpu, Network } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,8 +17,14 @@ import type { E2EOSCategory, E2EImage, E2ESshKey, E2ESecurityGroup, E2EVPC, E2EL
 const LOCATIONS: E2ELocation[] = ["Delhi", "Chennai"];
 
 const OS_ICONS: Record<string, string> = {
-  Ubuntu: "🟠", RockyLinux: "🪨", AlmaLinux: "🔵",
-  CentOS: "🎯", Debian: "🌀", OpenSUSE: "🟢", RedHat: "🔴", Windows: "🪟",
+  Ubuntu: "logos:ubuntu",
+  RockyLinux: "logos:rocky-linux",
+  AlmaLinux: "logos:almalinux",
+  CentOS: "logos:centos-icon",
+  Debian: "logos:debian",
+  OpenSUSE: "logos:opensuse",
+  RedHat: "logos:redhat-icon",
+  Windows: "logos:microsoft-windows-icon",
 };
 
 const SERIES_INFO: Record<string, { label: string; desc: string }> = {
@@ -30,7 +38,7 @@ function generateName() {
 }
 
 const DEFAULT_DISPLAY_CAT = "Linux Virtual Node";
-const DEFAULT_PROJECT_ID = 1;
+const DEFAULT_PROJECT_ID = 54565;
 
 export default function E2EDeployPage() {
   const router = useRouter();
@@ -76,15 +84,24 @@ export default function E2EDeployPage() {
         await fetchImages(loc, ubuntu.OS, ver.version);
       }
 
-      // Fetch ssh keys, security groups, and VPCs in parallel
-      const [keysRes, sgRes, vpcRes] = await Promise.all([
-        fetch(`/api/proxy/e2e/ssh-keys/?location=${loc}&project_id=${DEFAULT_PROJECT_ID}`),
-        fetch(`/api/proxy/e2e/security-groups/?location=${loc}&project_id=${DEFAULT_PROJECT_ID}`),
-        fetch(`/api/proxy/e2e/vpc/list/?location=${loc}&project_id=${DEFAULT_PROJECT_ID}`),
+      // Fetch optional resources — silently fall back to [] on any error
+      async function safeFetch(url: string) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) return null;
+          const ct = res.headers.get("content-type") ?? "";
+          if (!ct.includes("application/json")) return null;
+          return res.json();
+        } catch {
+          return null;
+        }
+      }
+
+      const [keysData, sgData, vpcData] = await Promise.all([
+        safeFetch(`/api/proxy/e2e/ssh-keys?location=${loc}&project_id=${DEFAULT_PROJECT_ID}`),
+        safeFetch(`/api/proxy/e2e/security-groups?location=${loc}&project_id=${DEFAULT_PROJECT_ID}`),
+        safeFetch(`/api/proxy/e2e/vpc/list?location=${loc}&project_id=${DEFAULT_PROJECT_ID}`),
       ]);
-      const keysData = await keysRes.json();
-      const sgData = await sgRes.json();
-      const vpcData = await vpcRes.json();
       setSshKeys(Array.isArray(keysData?.data) ? keysData.data : []);
       setSecurityGroups(Array.isArray(sgData?.data) ? sgData.data : []);
       setVpcs(Array.isArray(vpcData?.data) ? vpcData.data : []);
@@ -135,7 +152,7 @@ export default function E2EDeployPage() {
         default_public_ip: true,
         reserve_ip: "",
         is_ipv6_availed: false,
-        security_group_id: selectedSG ?? null,
+        ...(selectedSG ? { security_group_id: selectedSG } : {}),
         ...(selectedVPC ? { vpc_id: selectedVPC } : {}),
         // Instance config
         number_of_instances: 1,
@@ -143,7 +160,6 @@ export default function E2EDeployPage() {
         backups: false,
         start_scripts: [],
         is_saved_image: false,
-        saved_image_template_id: null,
         enable_bitninja: false,
         // Billing
         billing_type: billingType,
@@ -157,11 +173,12 @@ export default function E2EDeployPage() {
       });
       const data = await res.json();
       if (data?.code !== 200 && data?.code !== 201) {
-        throw new Error(data?.message ?? data?.errors ?? "Deploy failed");
+        throw new Error(data?.errors ?? data?.message ?? "Deploy failed");
       }
+      toast.success("Node deployed successfully!");
       router.push("/e2e");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Deployment failed");
+      toast.error(e instanceof Error ? e.message : "Deployment failed");
     } finally {
       setDeploying(false);
     }
@@ -216,7 +233,7 @@ export default function E2EDeployPage() {
                           "relative flex items-center gap-2.5 px-5 py-3 rounded-xl border text-sm transition-all",
                           location === loc ? "border-zinc-900 bg-white shadow-sm" : "border-zinc-200 bg-white hover:border-zinc-400"
                         )}>
-                        <span className="text-lg">{loc === "Delhi" ? "🇮🇳" : "🇮🇳"}</span>
+                        <Icon icon="twemoji:flag-india" className="w-5 h-5 flex-shrink-0" />
                         <div>
                           <p className="font-medium text-zinc-900">{loc}</p>
                           <p className="text-xs text-zinc-500">India</p>
@@ -237,7 +254,7 @@ export default function E2EDeployPage() {
                   action={<Badge variant="outline">Required</Badge>}>
                   <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3 mb-4">
                     {osCategories.filter((c) => !["SQLWEB", "SQLSTANDARD"].includes(c.OS)).map((cat) => {
-                      const icon = OS_ICONS[cat.OS] ?? "💿";
+                      const iconId = OS_ICONS[cat.OS] ?? "mdi:disc";
                       const isSelected = selectedOS === cat.OS;
                       return (
                         <button key={cat.OS} type="button"
@@ -249,7 +266,7 @@ export default function E2EDeployPage() {
                             "flex flex-col items-center gap-2 p-3 rounded-xl border text-sm transition-all",
                             isSelected ? "border-zinc-900 bg-zinc-50 shadow-sm" : "border-zinc-200 hover:border-zinc-400 bg-white"
                           )}>
-                          <span className="text-2xl">{icon}</span>
+                          <Icon icon={iconId} className="w-7 h-7" />
                           <p className="text-[10px] font-medium text-zinc-900 text-center leading-tight">{cat.OS}</p>
                         </button>
                       );

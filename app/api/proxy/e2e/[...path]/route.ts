@@ -11,6 +11,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ path: s
   const apiKey = process.env.E2E_CLOUD_API_KEY;
   if (!token || !apiKey) return NextResponse.json({ error: "E2E credentials not configured" }, { status: 500 });
 
+  // console.log(token, apiKey);
   const { path } = await params;
   // E2E API requires trailing slashes — Next.js strips them before the route handler
   const pathname = "/" + path.join("/") + "/";
@@ -27,6 +28,7 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ path: s
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
+      "Accept": "application/json",
     },
     body,
   });
