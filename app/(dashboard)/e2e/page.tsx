@@ -163,7 +163,17 @@ export default function E2EPage() {
     }
   }
 
-  useEffect(() => { loadNodes(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    const t = setTimeout(() => {
+      if (cancelled) return;
+      void loadNodes();
+    }, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, []);
 
   function toggleSelect(id: number) {
     setSelectedIds((prev) => {

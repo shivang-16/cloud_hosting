@@ -110,7 +110,7 @@ export default function E2EDeployPage() {
     } finally {
       setLoading(false);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   async function fetchImages(loc: E2ELocation, os: string, version: string) {
     const q = new URLSearchParams({
@@ -125,7 +125,17 @@ export default function E2EDeployPage() {
     return imgs;
   }
 
-  useEffect(() => { fetchData(location); }, [location]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    let cancelled = false;
+    const t = setTimeout(() => {
+      if (cancelled) return;
+      void fetchData(location);
+    }, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [fetchData, location]);
 
   async function handleOSSelect(os: string, version: string) {
     setSelectedOS(os);

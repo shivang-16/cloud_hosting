@@ -25,7 +25,8 @@ export interface KrutrimSshKey {
 }
 
 export interface KrutrimVpc {
-  krn: string;
+  krn_id?: string;  // actual API response field
+  krn?: string;     // older SDK shape
   name: string;
   status?: string;
 }

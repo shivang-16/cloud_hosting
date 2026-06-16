@@ -1,4 +1,4 @@
-export type ProviderId = "utho" | "e2e";
+export type ProviderId = "utho" | "e2e" | "krutrim";
 
 export interface ProviderConfig {
   id: ProviderId;
@@ -45,6 +45,23 @@ export const PROVIDERS: ProviderConfig[] = [
     capabilities: {
       vpc: true,
       snapshots: true,
+      backups: false,
+      iso: false,
+      marketplace: false,
+      sshKeys: true,
+      firewalls: true,
+      cpuModel: false,
+    },
+  },
+  {
+    id: "krutrim",
+    name: "Krutrim Cloud",
+    logo: "/logos/krutrim.svg",
+    description: "AI-native India cloud platform",
+    available: true,
+    capabilities: {
+      vpc: true,
+      snapshots: false,
       backups: false,
       iso: false,
       marketplace: false,

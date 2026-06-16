@@ -76,8 +76,16 @@ export default function UthoDeployPage() {
   }
 
   useEffect(() => {
-    fetchOptions(dcslug);
-  }, [dcslug]); // eslint-disable-line react-hooks/exhaustive-deps
+    let cancelled = false;
+    const t = setTimeout(() => {
+      if (cancelled) return;
+      void fetchOptions(dcslug);
+    }, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [dcslug]);
 
   function handleDCChange(slug: string) {
     setDcslug(slug);
