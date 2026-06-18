@@ -54,11 +54,13 @@ const PROVIDER_STYLES: Record<string, { bg: string; text: string; dot: string }>
   krutrim: { bg: "bg-violet-50",  text: "text-violet-700", dot: "bg-violet-400" },
 };
 
-const PROVIDER_NAMES: Record<string, string> = {
-  utho: "Utho Cloud", e2e: "E2E Networks", krutrim: "Krutrim Cloud",
-};
+const PROVIDER_NAMES = {
+  utho: "Utho Cloud",
+  e2e: "E2E Networks",
+  krutrim: "Krutrim Cloud",
+} as const;
 
-const PROVIDER_ORDER: Array<keyof typeof PROVIDER_NAMES> = ["utho", "e2e", "krutrim"];
+const PROVIDER_ORDER = ["utho", "e2e", "krutrim"] as const;
 
 function generateHostname() {
   return `node-${Math.random().toString(36).substring(2, 8)}`;
@@ -412,21 +414,23 @@ export default function DeployPage() {
     }
 
     // E2E
-    if (regionObj.e2eLoc) {
+    const e2eLoc = regionObj.e2eLoc;
+    if (e2eLoc) {
       try {
         const q = new URLSearchParams({
           category: config.osName, os: config.osName, osversion: config.osVersion,
-          display_category: DEFAULT_DISPLAY_CAT, location: regionObj.e2eLoc,
+          display_category: DEFAULT_DISPLAY_CAT, location: e2eLoc,
         });
         const d = await fetch(`/api/proxy/e2e/images/?${q}`).then((r) => r.json());
         const imgs: E2EImage[] = d?.data ?? [];
-        imgs.forEach((img) => results.push(e2eOfferFromImage(img, regionObj.e2eLoc)));
+        imgs.forEach((img) => results.push(e2eOfferFromImage(img, e2eLoc)));
       } catch { /* unavailable */ }
     }
 
     // Krutrim
-    if (regionObj.krutrimRegion) {
-      KRUTRIM_INSTANCE_TYPES.forEach((t) => results.push(krutrimOfferFromType(t, regionObj.krutrimRegion)));
+    const krutrimRegion = regionObj.krutrimRegion;
+    if (krutrimRegion) {
+      KRUTRIM_INSTANCE_TYPES.forEach((t) => results.push(krutrimOfferFromType(t, krutrimRegion)));
     }
 
     // Sort like AWS instance type list: smallest → largest, then cheapest
@@ -991,7 +995,7 @@ function Step2({
     return acc;
   }, {} as Record<(typeof PROVIDER_ORDER)[number], number>);
 
-  const [activeProvider, setActiveProvider] = useState<"utho" | "e2e" | "krutrim" | "all">("all");
+  const [activeProvider, setActiveProvider] = useState<typeof PROVIDER_ORDER[number] | "all">("all");
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
